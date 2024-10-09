@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import { getInfo } from "./getInfo";
 
 export default function Home() {
   const [data, setData] = useState("");
@@ -12,7 +13,11 @@ export default function Home() {
         width={400}
         height={400}
         onUpdate={(err, result) => {
-          if (result) setData(result.getText());
+          if (result) {
+            setData(result.getText());
+            const info = getInfo(data);
+            console.log(info);
+          }
         }}
       />
       <div className="text-center">
