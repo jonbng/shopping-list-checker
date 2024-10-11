@@ -9,10 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ericblade/quagga2": "^1.8.4",
+    "kroger-api-wrapper": "^1.0.11",
     "next": "14.2.15",
     "react": "^18",
-    "react-dom": "^18",
-    "@ericblade/quagga2": "^1.8.4"
+    "react-dom": "^18"
   },
   "devDependencies": {
     "typescript": "^5",

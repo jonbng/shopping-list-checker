@@ -85,17 +85,15 @@ const App = () => {
             )
         )}
       </ul>
-      {info.keywords.length > 0 ? (
-        <div>
-          <h2>Product Information</h2>
-          <img src={info.image_url} alt="product" />
-          <ul>
-            {info.keywords.map((keyword) => (
-              <li key={keyword}>{keyword}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <div className="absolute bottom-0">
+        <h2>Product Information</h2>
+        <img src={info.image_url} alt="product" />
+        <ul>
+          {info.keywords.map((keyword) => (
+            <li key={keyword}>{keyword}</li>
+          ))}
+        </ul>
+      </div>
       <div
         ref={scannerRef}
         style={{ position: "relative", border: "3px solid red" }}
