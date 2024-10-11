@@ -1,6 +1,6 @@
 import { useCallback, useLayoutEffect } from "react";
 import PropTypes from "prop-types";
-import Quagga from "@ericblade/quagga2";
+import Quagga, { QuaggaJSCodeReader } from "@ericblade/quagga2";
 
 function getMedian(arr) {
   const newArr = [...arr]; // copy the array before sorting, otherwise it mutates the array passed in, which is generally undesireable
@@ -29,7 +29,7 @@ const defaultLocatorSettings = {
   willReadFrequently: true,
 };
 
-const defaultDecoders = ["ean_reader"];
+const defaultDecoders: QuaggaJSCodeReader[] = ["ean_reader"];
 
 const Scanner = ({
   onDetected,
