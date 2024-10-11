@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Quagga from "@ericblade/quagga2";
 import Scanner from "./Scanner";
