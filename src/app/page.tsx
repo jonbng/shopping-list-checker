@@ -1,21 +1,28 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Quagga from "@ericblade/quagga2";
 import Scanner from "./Scanner";
 import Result from "./Result";
+import { getInfo } from "./getInfo";
 
 const App = () => {
-  const [scanning, setScanning] = useState(false); // toggleable state for "should render scanner"
+  const [scanning, setScanning] = useState(true); // toggleable state for "should render scanner"
   const [cameras, setCameras] = useState([]); // array of available cameras, as returned by Quagga.CameraAccess.enumerateVideoDevices()
   const [cameraId, setCameraId] = useState(null); // id of the active camera device
   const [cameraError, setCameraError] = useState(null); // error message from failing to access the camera
   const [results, setResults] = useState([]); // list of scanned results
-  const [torchOn, setTorch] = useState(false); // toggleable state for "should torch be on"
   const scannerRef = useRef(null); // reference to the scanner element in the DOM
+  const [info, setInfo] = useState({ keywords: [], image_url: "" });
+
+  async function updateResults(result) {
+    setResults([...results, result]);
+    setInfo(await getInfo(result.codeResult.code));
+  }
 
   // at start, we need to get a list of the available cameras.  We can do that with Quagga.CameraAccess.enumerateVideoDevices.
-  // HOWEVER, Android will not allow enumeration to occur unless the user has granted camera permissions to the app/page.
+  // HOWEVER, Android will not allow enumeratioupdateResultsn to occur unless the user has granted camera permissions to the app/page.
   // AS WELL, Android will not ask for permission until you actually try to USE the camera, just enumerating the devices is not enough to trigger the permission prompt.
   // THEREFORE, if we're going to be running in Android, we need to first call Quagga.CameraAccess.request() to trigger the permission prompt.
   // AND THEN, we need to call Quagga.CameraAccess.release() to release the camera so that it can be used by the scanner.
@@ -39,27 +46,16 @@ const App = () => {
       .then(disableCamera)
       .then(enumerateCameras)
       .then((cameras) => setCameras(cameras))
-      .then(() => Quagga.CameraAccess.disableTorch()) // disable torch at start, in case it was enabled before and we hot-reloaded
+      .then(() => Quagga.CameraAccess.disableTorch())
       .catch((err) => setCameraError(err));
     return () => {
       disableCamera();
     };
   }, []);
 
-  // provide a function to toggle the torch/flashlight
-  const onTorchClick = useCallback(() => {
-    const torch = !torchOn;
-    setTorch(torch);
-    if (torch) {
-      Quagga.CameraAccess.enableTorch();
-    } else {
-      Quagga.CameraAccess.disableTorch();
-    }
-  }, [torchOn, setTorch]);
-
   return (
     <div>
-      {cameraError ? (
+      {/* {cameraError ? (
         <p>
           ERROR INITIALIZING CAMERA ${JSON.stringify(cameraError)} -- DO YOU
           HAVE PERMISSION?
@@ -80,13 +76,7 @@ const App = () => {
             ))}
           </select>
         </form>
-      )}
-      <button onClick={onTorchClick}>
-        {torchOn ? "Disable Torch" : "Enable Torch"}
-      </button>
-      <button onClick={() => setScanning(!scanning)}>
-        {scanning ? "Stop" : "Start"}
-      </button>
+      )} */}
       <ul className="results">
         {results.map(
           (result) =>
@@ -95,6 +85,17 @@ const App = () => {
             )
         )}
       </ul>
+      {info.keywords.length > 0 ? (
+        <div>
+          <h2>Product Information</h2>
+          <img src={info.image_url} alt="product" />
+          <ul>
+            {info.keywords.map((keyword) => (
+              <li key={keyword}>{keyword}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       <div
         ref={scannerRef}
         style={{ position: "relative", border: "3px solid red" }}
@@ -117,7 +118,7 @@ const App = () => {
           <Scanner
             scannerRef={scannerRef}
             cameraId={cameraId}
-            onDetected={(result) => setResults([...results, result])}
+            onDetected={(result) => updateResults(result)}
           />
         ) : null}
       </div>
