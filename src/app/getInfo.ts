@@ -3,13 +3,12 @@
 import { getProduct } from "kroger-api-wrapper";
 import { getKrogerToken } from "./krogerClient";
 
-interface ProductType {
+export interface ProductType {
     name: string;
     image_url: string;
     price: string;
     upc: string;
     categories: string[];
-    stocklevel: string;
 }
 
 export async function getInfo(barcode: string) {
@@ -17,25 +16,42 @@ export async function getInfo(barcode: string) {
 
     const king_soopers_barcode = "0" + barcode.slice(0, -1)
     
-    console.log("King Soopers Barcode: ", king_soopers_barcode);
+    // console.log("King Soopers Barcode: ", king_soopers_barcode);
 
     const krogerAcessToken = await getKrogerToken();
 
-    console.log("Kroger Access Token: ", krogerAcessToken);
+    if (!krogerAcessToken) {
+        return { product: {} };
+    }
+
+    // console.log("Kroger Access Token: ", krogerAcessToken);
 
     const response = await getProduct({ token: krogerAcessToken, id: king_soopers_barcode, filters: { locationId: "62000022" } });
-    const responseData = response.data;
 
-    console.log("response: ", responseData);
+    if (!response) {
+        return { product: {} };
+    }
+
+    const responseData = response.data.data;
+
+    if (!responseData) {
+        return { product: {} };
+    }
+
+    // console.log("response: ", responseData);
+
+    // Find featured image or first image
+    const featuredImage = responseData.images.find((image) => image.featured) || responseData.images[0];
 
     const product: ProductType = {
-        image_url: responseData.images[0].sizes[0].url,
+        image_url: featuredImage.sizes[0].url,
         name: responseData.description,
         price: responseData.items[0].price.regular,
         upc: responseData.upc,
-        categories: responseData.categories,
-        stocklevel: responseData.items[0].inventory.stockLevel,
+        categories: responseData.categories
     };
 
-    return { product };
+    console.log("Product: ", product);
+
+    return product;
 }

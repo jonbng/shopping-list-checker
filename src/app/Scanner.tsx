@@ -19,8 +19,8 @@ function getMedianOfCodeErrors(decodedCodes) {
 }
 
 const defaultConstraints = {
-  width: 640,
-  height: 480,
+  width: 400,
+  height: 640,
 };
 
 const defaultLocatorSettings = {
@@ -49,7 +49,8 @@ const Scanner = ({
       }
       const err = getMedianOfCodeErrors(result.codeResult.decodedCodes);
       // if Quagga is at least 75% certain that it read correctly, then accept the code.
-      if (err < 0.25) {
+      if (err < 0.20) {
+        console.log("Quagga result: ", result.codeResult.code);
         onDetected(result.codeResult.code);
       }
     },
