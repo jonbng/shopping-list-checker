@@ -14,11 +14,11 @@ const App = () => {
   const [cameraError, setCameraError] = useState(null); // error message from failing to access the camera
   const [results, setResults] = useState([]); // list of scanned results
   const scannerRef = useRef(null); // reference to the scanner element in the DOM
-  const [info, setInfo] = useState({ keywords: [], image_url: "" });
+  const [info, setInfo] = useState({ product: {} });
 
   async function updateResults(result) {
     setResults([...results, result]);
-    setInfo(await getInfo(result.codeResult.code));
+    setInfo(await getInfo(result));
   }
 
   // at start, we need to get a list of the available cameras.  We can do that with Quagga.CameraAccess.enumerateVideoDevices.
@@ -85,7 +85,7 @@ const App = () => {
             )
         )}
       </ul>
-      <div className="absolute bottom-0">
+      {/* <div className="absolute bottom-0">
         <h2>Product Information</h2>
         <img src={info.image_url} alt="product" />
         <ul>
@@ -93,7 +93,7 @@ const App = () => {
             <li key={keyword}>{keyword}</li>
           ))}
         </ul>
-      </div>
+      </div> */}
       <div
         ref={scannerRef}
         style={{ position: "relative", border: "3px solid red" }}

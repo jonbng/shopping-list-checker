@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@ericblade/quagga2": "^1.8.4",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "kroger-api-wrapper": "^1.0.11",
     "next": "14.2.15",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@microsoft/microsoft-graph-types": "^2.40.0",
     "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
