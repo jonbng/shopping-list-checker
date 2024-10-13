@@ -31,7 +31,6 @@ export async function getCurrentToken(
         const authResult = await msalInstance.acquireTokenPopup(request);
         return authResult.accessToken;
       } catch (error) {
-        console.error("Error acquiring token:", error);
         return null;
       }
     }
@@ -41,9 +40,7 @@ export async function getCurrentToken(
 
   try {
     token = await acquireAccessToken();
-    console.log("Token acquired: ", token);
   } catch (error) {
-    console.error("Error acquiring token:", error);
   }
   return token;
 }
