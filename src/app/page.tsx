@@ -1,32 +1,34 @@
 "use client";
-
-import { useState } from "react";
-import BarcodeReader from "./BarcodeReader";
-import { ProductType } from "./getInfo";
+import { useEffect, useState } from "react";
+import { getTodoLists } from "./msGraphApi";
 
 export default function App() {
-  const [product, setProduct] = useState<ProductType | null>(null);
+  const [todoLists, setTodoLists] = useState([]);
 
-  const handleProduct = (product: ProductType) => {
-    setProduct(product);
-  }
+  useEffect(() => {
+    console.warn('fetchData');
+    async function fetchData() {
+      console.warn('fetchData2');
+      const response = await getTodoLists();
+      alert('response ' + response.value);
+      setTodoLists(response.value);
+      console.warn('todoLists', todoLists);
+    }
+    fetchData();
+  }, []);
 
   return (
     <div className="overflow-hidden">
-      <div className="">
-        <BarcodeReader handleProduct={(product) => handleProduct(product)} />
-      </div>
-      <div>
-        {product && (
-          <div>
-            <img src={product.image_url} alt={product.name} />
-            <div>{product.name}</div>
-            <div>{product.price}</div>
-            <div>{product.upc}</div>
-            <div>{product.categories}</div>
-          </div>
-        )}
-      </div>
+      <h1>HELLO!!</h1>
+      {todoLists && (
+        <div>
+          {todoLists.map((list) => (
+            <div key={list.id}>
+              <div>{list.displayName}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

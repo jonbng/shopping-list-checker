@@ -9,7 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/msal-browser": "^3.26.1",
+    "@azure/msal-react": "^2.1.1",
+    "@azure/msal-node": "^2.15.0",
     "@ericblade/quagga2": "^1.8.4",
+    "@emotion/cache": "^11.13.1",
+    "@emotion/react": "^11.13.3",
+    "@emotion/server": "^11.11.0",
+    "@emotion/styled": "^11.13.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "kroger-api-wrapper": "^1.0.11",
     "next": "14.2.15",
