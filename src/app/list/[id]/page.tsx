@@ -2,7 +2,7 @@
 
 import BarcodeReader from "../../BarcodeReader";
 import { ProductType } from "@/lib/krogerClient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,39 +17,47 @@ import {
 import { ArrowLeft, LogOut } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 import { handleLogout } from "@/msal/msal";
+import { addItemToListAndRefresh, getShoppingListInfo, ShoppingList } from "@/lib/shoppingListClient";
 
-// Mock data for list items
-const initialItems = [
-  { id: "1", name: "Milk", completed: false },
-  { id: "2", name: "Bread", completed: true },
-  { id: "3", name: "Eggs", completed: false },
-];
-
-export default function ListDetailClient({ id }: { id: string }) {
+export default function ListDetailClient({ params }: { params: { id: string } }) {
+  const id = params.id;
   const [product, setProduct] = useState<ProductType | null>(null);
+  const [todoList, setTodoList] = useState<ShoppingList>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await getShoppingListInfo(id);
+      setTodoList(response);
+      console.log(response);
+    }
+    fetchData();
+  }, []);
 
   const handleProduct = (product: ProductType) => {
     setProduct(product);
   };
 
-  const [items, setItems] = useState(initialItems);
   const [newItem, setNewItem] = useState("");
 
   const toggleItem = (id: string) => {
-    setItems(
-      items.map((item) =>
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
+    const updatedItems = todoList.items.map((item) =>
+      item.id === id ? { ...item, status: (item.status === "completed" ? "notStarted" : "completed" )  } : item
+    );
+    
+    setTodoList(
+      (prevState) => ({
+        ...prevState,
+        items: updatedItems,
+      })
     );
   };
 
   const addItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (newItem.trim()) {
-      setItems([
-        ...items,
-        { id: Date.now().toString(), name: newItem.trim(), completed: false },
-      ]);
+      addItemToListAndRefresh(id, newItem).then((response) => {
+        setTodoList(response);
+      });
       setNewItem("");
     }
   };
@@ -64,7 +72,7 @@ export default function ListDetailClient({ id }: { id: string }) {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">List {id}</h1>
+            <h1 className="text-2xl font-bold">{todoList ? todoList.displayName : "List"}</h1>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -103,25 +111,27 @@ export default function ListDetailClient({ id }: { id: string }) {
           <Button type="submit">Add</Button>
         </form>
 
-        <div className="space-y-2">
-          {items.map((item) => (
-            <div key={item.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={item.id}
-                checked={item.completed}
-                onCheckedChange={() => toggleItem(item.id)}
-              />
-              <label
-                htmlFor={item.id}
-                className={`flex-grow text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                  item.completed ? "line-through text-muted-foreground" : ""
-                }`}
-              >
-                {item.name}
-              </label>
-            </div>
-          ))}
-        </div>
+        {todoList && (
+          <div className="space-y-2">
+            {todoList.items.map((item) => (
+              <div key={item.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={item.id}
+                  checked={item.status === "completed"}
+                  onCheckedChange={() => toggleItem(item.id)}
+                />
+                <label
+                  htmlFor={item.id}
+                  className={`flex-grow text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                    item.status === "completed" ? "line-through text-muted-foreground" : ""
+                  }`}
+                >
+                  {item.name}
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
         {product && (
           <div>
             <img src={product.image_url} alt={product.name} />

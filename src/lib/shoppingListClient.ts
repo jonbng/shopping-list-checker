@@ -17,6 +17,18 @@ export interface ShoppingList {
   lastModifiedDateTime?: string;
 }
 
+export async function getOptions() {
+  const token = await getToken();
+
+  const headers = new Headers();
+  headers.append("Authorization", `Bearer ${token}`);
+
+  return {
+    method: "GET",
+    headers: headers,
+  };
+}
+
 export async function getTodoListItems(listId: string, options: { method: string; headers: Headers; }) {
   console.log('=> Fetching tasks');
 
@@ -51,17 +63,47 @@ export async function getTodoListItems(listId: string, options: { method: string
   return [items, lastModifiedDateTime];
 }
 
+export async function getShoppingListInfo(listId: string, options: { method: string; headers: Headers; } | null = null, list: ShoppingList | null = null) {
+  if (!options) {
+    options = await getOptions();
+  }
+
+  if (!list) {
+    const response = await fetch(
+      `https://graph.microsoft.com/v1.0/me/todo/lists/${listId}`,
+      options
+    );
+
+    list = await response.json();
+  }
+  
+  const listName = list.displayName;
+  const [listItems, lastModifiedDateTime] = await getTodoListItems(
+    listId,
+    options
+  );
+
+  // Find the number of items that are not completed
+  const remainingItemCount = listItems.filter(
+    (item) => item.status !== "completed"
+  ).length;
+
+  const finalList: ShoppingList = {
+    id: listId,
+    displayName: listName,
+    totalItemCount: listItems.length,
+    remainingItemCount: remainingItemCount,
+    isShared: list.isShared,
+    items: listItems,
+    lastModifiedDateTime: lastModifiedDateTime,
+  };
+
+  return finalList;
+}
+
 export async function getTodoLists() {
   console.log('=> Fetching tasks');
-  const token = await getToken();
-
-  const headers = new Headers();
-  headers.append("Authorization", `Bearer ${token}`);
-  
-  const options = {
-    method: "GET",
-    headers: headers,
-  };
+  const options = await getOptions();
 
   const response = await fetch(
     "https://graph.microsoft.com/v1.0/me/todo/lists",
@@ -78,31 +120,13 @@ export async function getTodoLists() {
   const fullLists: ShoppingList[] = [];
 
   for (const list of lists) {
-    const listId = list.id;
-    const listName = list.displayName;
-    const [listItems, lastModifiedDateTime] = await getTodoListItems(listId, options);
-
-    // Find the number of items that are not completed
-    const remainingItemCount = listItems.filter((item) => item.status !== "completed").length;
-    
-
-    const finalList: ShoppingList = {
-      id: listId,
-      displayName: listName,
-      totalItemCount: listItems.length,
-      remainingItemCount: remainingItemCount,
-      isShared: list.isShared,
-      items: listItems,
-      lastModifiedDateTime: lastModifiedDateTime,
-    };
-
-    fullLists.push(finalList);
+    fullLists.push(await getShoppingListInfo(list.id, options, list));
   }
 
   return fullLists;
 }
 
-async function markItemAsCompleted(listId: string, itemId: string, isCompleted: boolean) {
+export async function markItemAsCompleted(listId: string, itemId: string, isCompleted: boolean) {
   console.log('=> Marking item as completed');
 
   const token = await getToken();
@@ -129,5 +153,35 @@ async function markItemAsCompleted(listId: string, itemId: string, isCompleted: 
 
 export async function markItemAsCompletedAndRefresh(listId: string, itemId: string, isCompleted: boolean) {
   await markItemAsCompleted(listId, itemId, isCompleted);
-  return getTodoLists();
+  return await getTodoLists();
+}
+
+export async function addItemToList(listId: string, itemName: string) {
+  console.log('=> Adding item to list');
+
+  const token = await getToken();
+
+  const headers = new Headers();
+  headers.append("Authorization", `Bearer ${token}`);
+  headers.append("Content-Type", "application/json");
+
+  const options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({
+      title: itemName,
+    }),
+  };
+
+  await fetch(
+    `https://graph.microsoft.com/v1.0/me/todo/lists/${listId}/tasks`,
+    options
+  );
+
+  console.log('=> Item added to list');
+}
+
+export async function addItemToListAndRefresh(listId: string, itemName: string) {
+  await addItemToList(listId, itemName);
+  return await getShoppingListInfo(listId);
 }
