@@ -41,8 +41,8 @@ const BarcodeReader = ({ handleProduct }) => {
   }, []);
 
   return (
-    <div>
-      <div ref={scannerRef} className="relative">
+    <div className="h-full">
+      <div ref={scannerRef} className="relative rounded-lg overflow-hidden h-full">
         <canvas
           className="drawingBuffer"
           style={{
@@ -52,6 +52,7 @@ const BarcodeReader = ({ handleProduct }) => {
             height: "100%",
             width: "100%",
             overflow: "hidden",
+            borderRadius: "10px",
           }}
           width="100%"
           height="100%"

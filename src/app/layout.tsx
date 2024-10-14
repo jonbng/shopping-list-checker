@@ -21,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.className} bg-gray-100 flex flex-col p-4`}>
+      <body className={`${geistSans.className} bg-gray-100 flex flex-col p-2`}>
         <MyMsalProvider>
           <main>
             {children}

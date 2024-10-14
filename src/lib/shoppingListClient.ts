@@ -60,6 +60,17 @@ export async function getTodoListItems(listId: string, options: { method: string
     };
   });
 
+  // Sort the items by last modified date
+  items.sort((a, b) => {
+    return new Date(a.lastModifiedDateTime).getTime() - new Date(b.lastModifiedDateTime).getTime();
+  });
+
+  // Put the remaining items at the start of the list
+  items.sort((a) => {
+    return a.status === "completed" ? 1 : -1;
+  });
+
+
   return [items, lastModifiedDateTime];
 }
 

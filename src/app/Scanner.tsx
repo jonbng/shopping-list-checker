@@ -19,7 +19,7 @@ function getMedianOfCodeErrors(decodedCodes) {
 }
 
 const defaultConstraints = {
-  width: 400,
+  width: 362,
   height: 640,
 };
 

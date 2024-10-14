@@ -72,7 +72,9 @@ export default function ListDetailClient({ params }: { params: { id: string } })
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">{todoList ? todoList.displayName : "List"}</h1>
+            <h1 className="text-2xl font-bold">
+              {todoList ? todoList.displayName : "List"}
+            </h1>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -90,26 +92,16 @@ export default function ListDetailClient({ params }: { params: { id: string } })
         </div>
       </header>
 
-      <main className="container p-6">
+      <main className="container p-4">
         <Card className="mb-6 h-fit w-full">
-          <CardContent className="p-6 h-fit w-full">
-            <div className="flex items-center justify-center bg-muted rounded-md h-fit w-full">
+          <CardContent className="p-2 h-fit w-full">
+            <div className="flex items-center justify-center rounded-lg h-fit w-full py-1.5">
               <BarcodeReader
                 handleProduct={(product) => handleProduct(product)}
               />
             </div>
           </CardContent>
         </Card>
-
-        <form onSubmit={addItem} className="flex space-x-2 mb-4">
-          <Input
-            type="text"
-            placeholder="Add new item..."
-            value={newItem}
-            onChange={(e) => setNewItem(e.target.value)}
-          />
-          <Button type="submit">Add</Button>
-        </form>
 
         {todoList && (
           <div className="space-y-2">
@@ -123,7 +115,9 @@ export default function ListDetailClient({ params }: { params: { id: string } })
                 <label
                   htmlFor={item.id}
                   className={`flex-grow text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                    item.status === "completed" ? "line-through text-muted-foreground" : ""
+                    item.status === "completed"
+                      ? "line-through text-muted-foreground"
+                      : ""
                   }`}
                 >
                   {item.name}
@@ -132,6 +126,16 @@ export default function ListDetailClient({ params }: { params: { id: string } })
             ))}
           </div>
         )}
+        <form onSubmit={addItem} className="flex bottom-0 fixed w-screen left-0">
+          <Input
+            type="text"
+            placeholder="Add new item..."
+            value={newItem}
+            className="rounded-none focus-visible:ring-0 h-14"
+            onChange={(e) => setNewItem(e.target.value)}
+          />
+          <Button type="submit" className="rounded-none h-14 w-28 font-semibold text-lg">Add</Button>
+        </form>
         {product && (
           <div>
             <img src={product.image_url} alt={product.name} />
