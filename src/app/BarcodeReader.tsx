@@ -16,7 +16,7 @@ const BarcodeReader = ({ handleProduct }) => {
     const idkman = await getProductInfo(result);
     if ("vibrate" in navigator) navigator.vibrate(250);
     console.log("Product: ", idkman);
-    handleProduct(idkman);
+    handleProduct(idkman ?? false);
   }
 
   useEffect(() => {

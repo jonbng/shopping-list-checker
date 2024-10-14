@@ -33,7 +33,7 @@ export async function getProductInfo(barcode: string) {
   const krogerAcessToken = await getKrogerToken();
 
   if (!krogerAcessToken) {
-    return { product: {} };
+    return false;
   }
 
   // console.log("Kroger Access Token: ", krogerAcessToken);
@@ -42,16 +42,18 @@ export async function getProductInfo(barcode: string) {
     token: krogerAcessToken,
     id: king_soopers_barcode,
     filters: { locationId: "62000022" },
+  }).catch((error) => {
+    console.error("Error getting product: ", error);
   });
 
-  if (!response) {
-    return { product: {} };
+  if (!response || !response.data) {
+    return false;
   }
 
   const responseData = response.data.data;
 
   if (!responseData) {
-    return { product: {} };
+    return false;
   }
 
   // console.log("response: ", responseData);

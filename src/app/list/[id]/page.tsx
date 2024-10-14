@@ -1,9 +1,10 @@
 "use client";
 
-import BarcodeReader from "../../BarcodeReader";
-import { ProductType } from "@/lib/krogerClient";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import BarcodeReader from "../../BarcodeReader";
+import { ProductType } from "@/lib/krogerClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,15 +15,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, LogOut } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ArrowLeft, LogOut, DollarSign } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 import { handleLogout } from "@/msal/msal";
-import { addItemToListAndRefresh, getShoppingListInfo, ShoppingList } from "@/lib/shoppingListClient";
+import {
+  addItemToListAndRefresh,
+  getShoppingListInfo,
+  markItemAsCompletedAndRefresh,
+  ShoppingList,
+} from "@/lib/shoppingListClient";
 
-export default function ListDetailClient({ params }: { params: { id: string } }) {
+export default function ListDetailClient({
+  params,
+}: {
+  params: { id: string };
+}) {
   const id = params.id;
-  const [product, setProduct] = useState<ProductType | null>(null);
-  const [todoList, setTodoList] = useState<ShoppingList>(null);
+  const [product, setProduct] = useState<ProductType | null | false>(null);
+  const [todoList, setTodoList] = useState<ShoppingList | null>(null);
+  const [newItem, setNewItem] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
@@ -31,35 +52,61 @@ export default function ListDetailClient({ params }: { params: { id: string } })
       console.log(response);
     }
     fetchData();
-  }, []);
+  }, [id]);
+
+  // useEffect(() => {
+  //   if (todoList) {
+  //     const total = todoList.items.reduce((sum, item) => {
+  //       return sum + (item.price ? parseFloat(item.price) : 0);
+  //     }, 0);
+  //     setTotalPrice(total);
+  //   }
+  // }, [todoList]);
 
   const handleProduct = (product: ProductType) => {
-    setProduct(product);
+    if (!product) {
+      setProduct(false);
+      setIsDialogOpen(true);
+    } else {
+      setProduct(product);
+      setIsDialogOpen(true);
+    }
   };
 
-  const [newItem, setNewItem] = useState("");
-
-  const toggleItem = (id: string) => {
-    const updatedItems = todoList.items.map((item) =>
-      item.id === id ? { ...item, status: (item.status === "completed" ? "notStarted" : "completed" )  } : item
-    );
-    
-    setTodoList(
-      (prevState) => ({
-        ...prevState,
-        items: updatedItems,
-      })
-    );
+  const toggleItem = async (id: string) => {
+    const item = todoList!.items.find((item) => item.id === id);
+    setTodoList({
+      ...todoList!,
+      items: todoList!.items.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              status: item.status === "completed" ? "notStarted" : "completed",
+            }
+          : item
+      ),
+    });
+    setTodoList(await markItemAsCompletedAndRefresh(todoList.id, id, item.status === "completed" ? true : false));
   };
 
-  const addItem = (e: React.FormEvent) => {
+  const addItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newItem.trim()) {
-      addItemToListAndRefresh(id, newItem).then((response) => {
-        setTodoList(response);
-      });
+      setTodoList(await addItemToListAndRefresh(id, newItem));
       setNewItem("");
     }
+  };
+
+  const acceptScannedItem = () => {
+    if (product) {
+      addItemToListAndRefresh(id, product.name).then(
+        (response) => {
+          setTodoList(response);
+        }
+      );
+    }
+    setIsDialogOpen(false);
+    setProduct(null);
   };
 
   return (
@@ -103,30 +150,54 @@ export default function ListDetailClient({ params }: { params: { id: string } })
           </CardContent>
         </Card>
 
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Shopping List</h2>
+          <div className="flex items-center">
+            <DollarSign className="h-5 w-5 mr-1" />
+            <span className="text-lg font-semibold">
+              {/* {totalPrice.toFixed(2) } */}
+              2
+            </span>
+          </div>
+        </div>
+
         {todoList && (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {todoList.items.map((item) => (
-              <div key={item.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={item.id}
-                  checked={item.status === "completed"}
-                  onCheckedChange={() => toggleItem(item.id)}
-                />
-                <label
-                  htmlFor={item.id}
-                  className={`flex-grow text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                    item.status === "completed"
-                      ? "line-through text-muted-foreground"
-                      : ""
-                  }`}
-                >
-                  {item.name}
-                </label>
-              </div>
+              <Card
+                key={item.id}
+                className={`p-4 ${
+                  item.status === "completed" ? "bg-gray-100" : ""
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  <Checkbox
+                    id={item.id}
+                    checked={item.status === "completed"}
+                    onCheckedChange={() => toggleItem(item.id)}
+                  />
+                  <div className="flex-grow">
+                    <label
+                      htmlFor={item.id}
+                      className={`text-lg font-medium ${
+                        item.status === "completed"
+                          ? "line-through text-muted-foreground"
+                          : ""
+                      }`}
+                    >
+                      {item.name}
+                    </label>
+                  </div>
+                </div>
+              </Card>
             ))}
           </div>
         )}
-        <form onSubmit={addItem} className="flex bottom-0 fixed w-screen left-0">
+
+        <form
+          onSubmit={addItem}
+          className="flex bottom-0 fixed w-screen left-0"
+        >
           <Input
             type="text"
             placeholder="Add new item..."
@@ -134,17 +205,68 @@ export default function ListDetailClient({ params }: { params: { id: string } })
             className="rounded-none focus-visible:ring-0 h-14"
             onChange={(e) => setNewItem(e.target.value)}
           />
-          <Button type="submit" className="rounded-none h-14 w-28 font-semibold text-lg">Add</Button>
+          <Button
+            type="submit"
+            className="rounded-none h-14 w-28 font-semibold text-lg"
+          >
+            Add
+          </Button>
         </form>
-        {product && (
-          <div>
-            <img src={product.image_url} alt={product.name} />
-            <div>{product.name}</div>
-            <div>{product.price}</div>
-            <div>{product.upc}</div>
-            <div>{product.categories}</div>
-          </div>
-        )}
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="mx-auto w-[90vw] rounded-lg" >
+            <DialogHeader>
+              <DialogTitle>
+                {product ? "Scanned Item" : "Unknown Item"}
+              </DialogTitle>
+              <DialogDescription>
+                {product
+                  ? "Is this the correct item?"
+                  : "The scanned item was not recognized."}
+              </DialogDescription>
+            </DialogHeader>
+            {product ? (
+              <div className="flex flex-col items-center">
+                <Image
+                  src={product.image_url}
+                  alt={product.name}
+                  width={200}
+                  height={200}
+                  className="mb-4"
+                />
+                <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
+                <p className="text-muted-foreground mb-1">
+                  Price: ${product.price}
+                </p>
+                <p className="text-muted-foreground mb-1">UPC: {product.upc}</p>
+                {product.categories && product.categories.length > 0 ? (
+                  <p className="text-muted-foreground mb-1">
+                    Categories: {product.categories.join(", ") ?? product.categories[0]}
+                  </p>
+                ) : (
+                  ""
+                )}
+              </div>
+            ) : (
+              <p>Please try scanning again or try a different item.</p>
+            )}
+            <DialogFooter className="flex gap-4">
+              {product ? (
+                <>
+                  <Button
+                    onClick={() => setIsDialogOpen(false)}
+                    variant="outline"
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={acceptScannedItem}>Accept</Button>
+                </>
+              ) : (
+                <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

@@ -150,7 +150,7 @@ export async function markItemAsCompleted(listId: string, itemId: string, isComp
     method: "PATCH",
     headers: headers,
     body: JSON.stringify({
-      status: isCompleted ? "completed" : "notStarted",
+      status: isCompleted ? "notStarted" : "completed",
     }),
   };
 
@@ -164,7 +164,7 @@ export async function markItemAsCompleted(listId: string, itemId: string, isComp
 
 export async function markItemAsCompletedAndRefresh(listId: string, itemId: string, isCompleted: boolean) {
   await markItemAsCompleted(listId, itemId, isCompleted);
-  return await getTodoLists();
+  return await getShoppingListInfo(listId);
 }
 
 export async function addItemToList(listId: string, itemName: string) {
