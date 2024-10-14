@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import BarcodeReader from "../BarcodeReader";
-import { ProductType } from "../getInfo";
+import BarcodeReader from "../../BarcodeReader";
+import { ProductType } from "../../../lib/getInfo";
 
 export default function Scanner() {
   const [product, setProduct] = useState<ProductType | null>(null);

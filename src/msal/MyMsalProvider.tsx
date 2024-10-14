@@ -7,7 +7,7 @@ import {
   MsalProvider,
   UnauthenticatedTemplate,
 } from "@azure/msal-react";
-import UnauthorizedMessage from "@/components/UnauthorizedMessage";
+import UnauthorizedMessage from "@/components/LoginPage";
 
 export default function MyMsalProvider({
   children,

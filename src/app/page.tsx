@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getTodoLists, ShoppingList } from "./msGraphApi";
+import { getTodoLists, ShoppingList } from "../lib/msGraphApi";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
