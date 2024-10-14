@@ -43,7 +43,7 @@ export default function ListDetailClient({
   const [todoList, setTodoList] = useState<ShoppingList | null>(null);
   const [newItem, setNewItem] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
@@ -53,15 +53,6 @@ export default function ListDetailClient({
     }
     fetchData();
   }, [id]);
-
-  // useEffect(() => {
-  //   if (todoList) {
-  //     const total = todoList.items.reduce((sum, item) => {
-  //       return sum + (item.price ? parseFloat(item.price) : 0);
-  //     }, 0);
-  //     setTotalPrice(total);
-  //   }
-  // }, [todoList]);
 
   const handleProduct = (product: ProductType) => {
     if (!product) {
@@ -99,6 +90,7 @@ export default function ListDetailClient({
 
   const acceptScannedItem = () => {
     if (product) {
+      setTotalPrice(totalPrice + parseFloat(product.price));
       addItemToListAndRefresh(id, product.name).then(
         (response) => {
           setTodoList(response);
@@ -155,8 +147,7 @@ export default function ListDetailClient({
           <div className="flex items-center">
             <DollarSign className="h-5 w-5 mr-1" />
             <span className="text-lg font-semibold">
-              {/* {totalPrice.toFixed(2) } */}
-              2
+              {totalPrice.toFixed(2) }
             </span>
           </div>
         </div>
