@@ -61,9 +61,14 @@ export default function Dashboard() {
                 <CardContent>
                   <div>
                     <div>
-                      <div className="text-2xl font-bold">{list.itemCount}</div>
+                      <div className="text-2xl font-bold">
+                        {list.remainingItemCount}
+                      </div>
                       <p className="text-xs text-muted-foreground">
-                        {list.itemCount === 1 ? "item" : "items"}
+                        {list.remainingItemCount === 1 ? "item" : "items"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {list.totalItemCount} total
                       </p>
                     </div>
                     <div>

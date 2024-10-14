@@ -10,7 +10,8 @@ export interface ShoppingListItem {
 export interface ShoppingList {
   id: string;
   displayName: string;
-  itemCount: number;
+  totalItemCount: number;
+  remainingItemCount: number;
   isShared: boolean;
   items: ShoppingListItem[];
   lastModifiedDateTime?: string;
@@ -80,12 +81,16 @@ export async function getTodoLists() {
     const listId = list.id;
     const listName = list.displayName;
     const [listItems, lastModifiedDateTime] = await getTodoListItems(listId, options);
+
+    // Find the number of items that are not completed
+    const remainingItemCount = listItems.filter((item) => item.status !== "completed").length;
     
 
     const finalList: ShoppingList = {
       id: listId,
       displayName: listName,
-      itemCount: listItems.length,
+      totalItemCount: listItems.length,
+      remainingItemCount: remainingItemCount,
       isShared: list.isShared,
       items: listItems,
       lastModifiedDateTime: lastModifiedDateTime,
