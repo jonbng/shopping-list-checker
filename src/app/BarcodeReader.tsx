@@ -4,7 +4,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Quagga from "@ericblade/quagga2";
 import Scanner from "./Scanner";
-import { getInfo } from "../lib/getInfo";
+import { getProductInfo } from "@/lib/krogerClient";
 import PropTypes from "prop-types";
 
 const BarcodeReader = ({ handleProduct }) => {
@@ -13,7 +13,7 @@ const BarcodeReader = ({ handleProduct }) => {
 
   async function updateResults(result) {
     setResults([...results, result]); // For some obscure reason, this is necessary for the scanner to not trigger multiple times on the same barcode... I have no idea why
-    const idkman = await getInfo(result);
+    const idkman = await getProductInfo(result);
     if ("vibrate" in navigator) navigator.vibrate(250);
     console.log("Product: ", idkman);
     handleProduct(idkman);

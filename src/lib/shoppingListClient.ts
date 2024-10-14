@@ -101,3 +101,33 @@ export async function getTodoLists() {
 
   return fullLists;
 }
+
+async function markItemAsCompleted(listId: string, itemId: string, isCompleted: boolean) {
+  console.log('=> Marking item as completed');
+
+  const token = await getToken();
+
+  const headers = new Headers();
+  headers.append("Authorization", `Bearer ${token}`);
+  headers.append("Content-Type", "application/json");
+
+  const options = {
+    method: "PATCH",
+    headers: headers,
+    body: JSON.stringify({
+      status: isCompleted ? "completed" : "notStarted",
+    }),
+  };
+
+  await fetch(
+    `https://graph.microsoft.com/v1.0/me/todo/lists/${listId}/tasks/${itemId}`,
+    options
+  );
+
+  console.log('=> Item marked as completed');
+}
+
+export async function markItemAsCompletedAndRefresh(listId: string, itemId: string, isCompleted: boolean) {
+  await markItemAsCompleted(listId, itemId, isCompleted);
+  return getTodoLists();
+}
