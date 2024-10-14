@@ -32,6 +32,7 @@ import {
   markItemAsCompletedAndRefresh,
   ShoppingList,
 } from "@/lib/shoppingListClient";
+import { compareItems } from "@/lib/aiComparer";
 
 export default function ListDetailClient({
   params,
@@ -88,14 +89,16 @@ export default function ListDetailClient({
     }
   };
 
-  const acceptScannedItem = () => {
+  const acceptScannedItem = async () => {
     if (product) {
       setTotalPrice(totalPrice + parseFloat(product.price));
-      addItemToListAndRefresh(id, product.name).then(
-        (response) => {
-          setTodoList(response);
-        }
+      const itemToRemove = await compareItems(product.name, todoList!);
+      console.log("Item to remove", itemToRemove, todoList);
+      const actualItem = todoList!.items.find(
+        (item) => item.name === itemToRemove
       );
+
+      setTodoList(await markItemAsCompletedAndRefresh(todoList!.id, actualItem!.id, false));
     }
     setIsDialogOpen(false);
     setProduct(null);
