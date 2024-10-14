@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, LogOut } from "lucide-react";
+import { ShoppingCart, LogOut, Users, User } from "lucide-react";
 import { handleLogout } from "@/msal/msal";
 import UserAvatar from "@/components/UserAvatar";
 
@@ -59,34 +59,42 @@ export default function Dashboard() {
                   <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div>
-                    <div>
+                  <div className="flex flex-row justify-between px-6 py-2">
+                    <div className="items-center flex flex-col w-fit">
                       <div className="text-2xl font-bold">
                         {list.remainingItemCount}
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {list.remainingItemCount === 1 ? "item" : "items"}
                       </p>
+                    </div>
+                    <div className="items-center flex flex-col w-fit">
+                      <div className="text-2xl font-bold">
+                        {list.totalItemCount}
+                      </div>
                       <p className="text-xs text-muted-foreground">
-                        {list.totalItemCount} total
+                        {list.remainingItemCount === 1
+                          ? "item total"
+                          : "items total"}
                       </p>
                     </div>
-                    <div>
+                    <div className="items-center flex flex-col w-fit">
+                      {list.isShared ? <Users size={32} /> : <User size={32} /> }
                       <p className="text-sm text-muted-foreground">
                         {list.isShared ? "Shared list" : "Personal list"}
                       </p>
                     </div>
-                    {list.lastModifiedDateTime && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Last modified:{" "}
-                          {new Date(
-                            list.lastModifiedDateTime
-                          ).toLocaleDateString()}
-                        </p>
-                      </div>
-                    )}
                   </div>
+                  {list.lastModifiedDateTime && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Last modified:{" "}
+                        {new Date(
+                          list.lastModifiedDateTime
+                        ).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </Link>
