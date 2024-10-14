@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getTodoLists } from "./msGraphApi";
+import { getTodoLists, ShoppingList } from "./msGraphApi";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,13 +15,13 @@ import { handleLogout } from "@/msal/msal";
 import UserAvatar from "@/components/UserAvatar";
 
 export default function Dashboard() {
-  const [todoLists, setTodoLists] = useState([]);
+  const [todoLists, setTodoLists] = useState<ShoppingList[]>([]);
 
   useEffect(() => {
     async function fetchData() {
       const response = await getTodoLists();
-      setTodoLists(response.value);
-      console.log(response.value);
+      setTodoLists(response);
+      console.log(response);
     }
     fetchData();
   }, []);
@@ -59,10 +59,29 @@ export default function Dashboard() {
                   <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{list.itemCount}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {list.itemCount === 1 ? "item" : "items"}
-                  </p>
+                  <div>
+                    <div>
+                      <div className="text-2xl font-bold">{list.itemCount}</div>
+                      <p className="text-xs text-muted-foreground">
+                        {list.itemCount === 1 ? "item" : "items"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        {list.isShared ? "Shared list" : "Personal list"}
+                      </p>
+                    </div>
+                    {list.lastModifiedDateTime && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Last modified:{" "}
+                          {new Date(
+                            list.lastModifiedDateTime
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </Link>
