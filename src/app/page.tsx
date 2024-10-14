@@ -53,7 +53,7 @@ export default function Dashboard() {
             <Link href={`/list/${list.id}`} key={list.id}>
               <Card className="hover:bg-accent transition-colors">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-lg font-medium">
+                  <CardTitle className="text-xl font-semibold">
                     {list.displayName}
                   </CardTitle>
                   <ShoppingCart className="h-4 w-4 text-muted-foreground" />
@@ -65,7 +65,7 @@ export default function Dashboard() {
                         {list.remainingItemCount}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {list.remainingItemCount === 1 ? "item" : "items"}
+                        {list.remainingItemCount === 1 ? "Item" : "Items"}
                       </p>
                     </div>
                     <div className="items-center flex flex-col w-fit">
@@ -74,13 +74,17 @@ export default function Dashboard() {
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {list.remainingItemCount === 1
-                          ? "item total"
-                          : "items total"}
+                          ? "Item total"
+                          : "Items total"}
                       </p>
                     </div>
                     <div className="items-center flex flex-col w-fit">
-                      {list.isShared ? <Users size={32} /> : <User size={32} /> }
-                      <p className="text-sm text-muted-foreground">
+                      {list.isShared ? (
+                        <Users size={32} strokeWidth={2.4} />
+                      ) : (
+                        <User size={32} strokeWidth={2.4} />
+                      )}
+                      <p className="text-xs text-muted-foreground">
                         {list.isShared ? "Shared list" : "Personal list"}
                       </p>
                     </div>
