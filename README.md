@@ -15,8 +15,14 @@
 <img alt="Ad" src="https://github.com/user-attachments/assets/ed060a57-5ffc-4e77-8225-0a44373236d9">
 <br />
 <br />
-Currently it only works with shopping lists on Microsoft todo and items available in King Soopers.
-<br />
+
+> [!IMPORTANT]
+> Currently it only works with shopping lists on Microsoft todo and items available in King Soopers.
+
 <br />
 
 <img width="1024" alt="ScanShop" src="https://github.com/user-attachments/assets/84ac0127-ce3b-4411-8262-824f47e874a5">
+
+<br />
+<br />
+
