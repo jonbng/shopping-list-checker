@@ -98,7 +98,9 @@ export default function ListDetailClient({
         (item) => item.name === itemToRemove
       );
 
-      setTodoList(await markItemAsCompletedAndRefresh(todoList!.id, actualItem!.id, false));
+      if (actualItem) {
+        setTodoList(await markItemAsCompletedAndRefresh(todoList!.id, actualItem!.id, false));
+      }
     }
     setIsDialogOpen(false);
     setProduct(null);
