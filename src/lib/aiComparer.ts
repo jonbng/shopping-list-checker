@@ -23,7 +23,7 @@ export async function compareItems(itemName: string, todoList: ShoppingList) {
       If there is no similar item, return 'none'. 
 
       IMPORTANT: You must return the EXACT name of the item from the shopping list. 
-      DO NOT RETURN the subject itself (${itemName}). 
+      DO NOT RETURN the subject itself (${itemName}). ALSO DO NOT RETURN a similar item that is not in the list. DONT CORRECT SPELLING ERRORS OR STUFF LIKE "Cheddar chesse *things*" OR ANYTHING ELSE.
 
       Examples:
       - If the subject is 'apple' and the list contains 'apple', 'banana', 'orange', return 'apple'.

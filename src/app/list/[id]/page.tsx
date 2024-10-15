@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowLeft, LogOut, DollarSign } from "lucide-react";
+import { ArrowLeft, LogOut, DollarSign, Loader2 } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 import { handleLogout } from "@/msal/msal";
 import {
@@ -31,6 +31,7 @@ import {
   getShoppingListInfo,
   markItemAsCompletedAndRefresh,
   ShoppingList,
+  ShoppingListItem,
 } from "@/lib/shoppingListClient";
 import { compareItems } from "@/lib/aiComparer";
 
@@ -45,6 +46,8 @@ export default function ListDetailClient({
   const [newItem, setNewItem] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [isComparing, setIsComparing] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<ShoppingListItem | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -55,13 +58,25 @@ export default function ListDetailClient({
     fetchData();
   }, [id]);
 
-  const handleProduct = (product: ProductType) => {
+  const handleProduct = async (product: ProductType) => {
     if (!product) {
       setProduct(false);
       setIsDialogOpen(true);
     } else {
       setProduct(product);
       setIsDialogOpen(true);
+      setIsComparing(true);
+      try {
+        const itemName = await compareItems(product.name, todoList!);
+        const actualItem = todoList!.items.find(
+          (item) => item.name === itemName
+        );
+        setItemToRemove(actualItem);
+      } catch (error) {
+        console.error("Error comparing items:", error);
+        setItemToRemove(null);
+      }
+      setIsComparing(false);
     }
   };
 
@@ -78,7 +93,13 @@ export default function ListDetailClient({
           : item
       ),
     });
-    setTodoList(await markItemAsCompletedAndRefresh(todoList.id, id, item.status === "completed" ? true : false));
+    setTodoList(
+      await markItemAsCompletedAndRefresh(
+        todoList!.id,
+        id,
+        item!.status === "completed" ? true : false
+      )
+    );
   };
 
   const addItem = async (e: React.FormEvent) => {
@@ -92,18 +113,20 @@ export default function ListDetailClient({
   const acceptScannedItem = async () => {
     if (product) {
       setTotalPrice(totalPrice + parseFloat(product.price));
-      const itemToRemove = await compareItems(product.name, todoList!);
-      console.log("Item to remove", itemToRemove, todoList);
-      const actualItem = todoList!.items.find(
-        (item) => item.name === itemToRemove
-      );
 
-      if (actualItem) {
-        setTodoList(await markItemAsCompletedAndRefresh(todoList!.id, actualItem!.id, false));
+      if (itemToRemove) {
+        setTodoList(
+          await markItemAsCompletedAndRefresh(
+            todoList!.id,
+            itemToRemove.id,
+            false
+          )
+        );
       }
     }
     setIsDialogOpen(false);
     setProduct(null);
+    setItemToRemove(null);
   };
 
   return (
@@ -152,7 +175,7 @@ export default function ListDetailClient({
           <div className="flex items-center">
             <DollarSign className="h-5 w-5 mr-1" />
             <span className="text-lg font-semibold">
-              {totalPrice.toFixed(2) }
+              {totalPrice.toFixed(2)}
             </span>
           </div>
         </div>
@@ -210,7 +233,7 @@ export default function ListDetailClient({
         </form>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="mx-auto w-[90vw] rounded-lg" >
+          <DialogContent className="mx-auto w-[90vw] rounded-lg">
             <DialogHeader>
               <DialogTitle>
                 {product ? "Scanned Item" : "Unknown Item"}
@@ -237,10 +260,25 @@ export default function ListDetailClient({
                 <p className="text-muted-foreground mb-1">UPC: {product.upc}</p>
                 {product.categories && product.categories.length > 0 ? (
                   <p className="text-muted-foreground mb-1">
-                    Categories: {product.categories.join(", ") ?? product.categories[0]}
+                    Categories:{" "}
+                    {product.categories.join(", ") ?? product.categories[0]}
                   </p>
                 ) : (
                   ""
+                )}
+                {isComparing ? (
+                  <div className="flex items-center mt-4">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <p>Comparing with shopping list...</p>
+                  </div>
+                ) : itemToRemove ? (
+                  <p className="mt-4 text-green-600">
+                    This item will replace: {itemToRemove.name}
+                  </p>
+                ) : (
+                  <p className="mt-4 text-yellow-600">
+                    No matching item found in the shopping list.
+                  </p>
                 )}
               </div>
             ) : (
@@ -252,10 +290,15 @@ export default function ListDetailClient({
                   <Button
                     onClick={() => setIsDialogOpen(false)}
                     variant="outline"
+                    disabled={isComparing}
                   >
                     Cancel
                   </Button>
-                  <Button onClick={acceptScannedItem}>Accept</Button>
+                  {itemToRemove ? (
+                    <Button onClick={acceptScannedItem} disabled={isComparing}>
+                      Accept
+                    </Button>
+                  ) : ""}
                 </>
               ) : (
                 <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
