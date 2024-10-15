@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getTodoLists, ShoppingList, createList } from "../lib/shoppingListClient";
+import { getTodoLists, ShoppingList, createList, createListAndRefresh } from "../lib/shoppingListClient";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,14 @@ export default function Dashboard() {
     }
     fetchData();
   }, []);
+
+  const handleCreateList = async () => {
+    try {
+      setTodoLists(await createListAndRefresh("New Shopping List"));
+    } catch (error) {
+      console.error("Failed to create new list:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">

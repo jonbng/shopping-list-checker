@@ -221,3 +221,8 @@ export async function createList(listName: string) {
 
   console.log('=> List created');
 }
+
+export async function createListAndRefresh(listName: string) {
+  await createList(listName);
+  return await getTodoLists();
+}
