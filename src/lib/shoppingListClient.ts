@@ -196,3 +196,28 @@ export async function addItemToListAndRefresh(listId: string, itemName: string) 
   await addItemToList(listId, itemName);
   return await getShoppingListInfo(listId);
 }
+
+export async function createList(listName: string) {
+  console.log('=> Creating list');
+
+  const token = await getToken();
+
+  const headers = new Headers();
+  headers.append("Authorization", `Bearer ${token}`);
+  headers.append("Content-Type", "application/json");
+
+  const options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({
+      displayName: listName,
+    }),
+  };
+
+  await fetch(
+    "https://graph.microsoft.com/v1.0/me/todo/lists",
+    options
+  );
+
+  console.log('=> List created');
+}

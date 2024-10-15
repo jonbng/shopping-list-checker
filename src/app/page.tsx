@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getTodoLists, ShoppingList } from "../lib/shoppingListClient";
+import { getTodoLists, ShoppingList, createList } from "../lib/shoppingListClient";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
