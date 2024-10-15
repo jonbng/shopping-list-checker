@@ -19,4 +19,4 @@ Currently it only works with shopping lists on Microsoft todo and items availabl
 <br />
 <br />
 
-<img width="1024" alt="ShopScan thing" src="https://github.com/user-attachments/assets/b4f9b25d-b01e-44e0-a05c-cd52db78a854">
+<img width="1024" alt="ScanShop" src="https://github.com/user-attachments/assets/84ac0127-ce3b-4411-8262-824f47e874a5">
