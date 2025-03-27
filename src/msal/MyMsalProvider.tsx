@@ -57,7 +57,7 @@ export default function AppWrapper({
       </p>
 
       <div className="bg-white p-4 rounded-lg shadow-lg mb-8">
-        <Image alt="qr code" src="https://raw.githubusercontent.com/arctixdev/shopping-list-checker/refs/heads/main/qr-code(3).svg" height={200} width={200}/>
+        <Image alt="qr code" src="https://raw.githubusercontent.com/jonbng/shopping-list-checker/refs/heads/main/qr-code(3).svg" height={200} width={200}/>
       </div>
 
       <p className="text-lg mb-4 text-center">
